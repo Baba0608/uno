@@ -8,11 +8,7 @@ export class UsersService {
   constructor(private prismaService: PrismaService) {}
 
   async create(createUserDto: CreateUserDto) {
-    return this.prismaService.createUser({
-      username: createUserDto.username,
-      email: createUserDto.email,
-      coins: createUserDto.coins || 1000, // Default starting coins
-    });
+    return this.prismaService.createUser(createUserDto);
   }
 
   async findAll() {
