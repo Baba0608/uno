@@ -29,10 +29,7 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
-    return this.prismaService.updateUser({
-      where: { id },
-      data: updateUserDto,
-    });
+    return this.prismaService.updateUser(id, updateUserDto);
   }
 
   async remove(id: number) {

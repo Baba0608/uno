@@ -28,10 +28,7 @@ export class RoomsService {
   }
 
   update(id: number, updateRoomDto: UpdateRoomDto) {
-    return this.prismaService.updateRoom({
-      where: { id },
-      data: updateRoomDto,
-    });
+    return this.prismaService.updateRoom(id, updateRoomDto);
   }
 
   remove(id: number) {
