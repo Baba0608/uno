@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../database/database.service';
 import { PrismaClient } from '@prisma/client';
 import { CreateUserDto } from '../../app/users/dto/create-user.dto';
-import { UpdateUserDto } from '../../app/users/dto/update-user.dto';
+import { CreateRoomDto } from '../../app/rooms/dto/create-room.dto';
 
 @Injectable()
 export class PrismaService {
@@ -19,9 +19,10 @@ export class PrismaService {
     });
   }
 
-  async findUserById(id: number) {
+  async findUserById(id: number, options?: any) {
     return this.prisma.user.findUnique({
       where: { id },
+      ...options,
     });
   }
 
@@ -29,11 +30,37 @@ export class PrismaService {
     return this.prisma.user.findMany(options);
   }
 
-  async updateUser(options: { where: { id: number }; data: UpdateUserDto }) {
+  async updateUser(options: any) {
     return this.prisma.user.update(options);
   }
 
   async deleteUser(options: { where: { id: number } }) {
     return this.prisma.user.delete(options);
+  }
+
+  // Rooms
+  async createRoom(data: CreateRoomDto) {
+    return this.prisma.room.create({
+      data,
+    });
+  }
+
+  async findRoomById(id: number, options?: any) {
+    return this.prisma.room.findUnique({
+      where: { id },
+      ...options,
+    });
+  }
+
+  async findRooms(options?: any) {
+    return this.prisma.room.findMany(options);
+  }
+
+  async updateRoom(options: any) {
+    return this.prisma.room.update(options);
+  }
+
+  async deleteRoom(options: { where: { id: number } }) {
+    return this.prisma.room.delete(options);
   }
 }
