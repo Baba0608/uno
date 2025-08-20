@@ -7,6 +7,8 @@ import { UpdateUserDto } from '../../app/users/dto/update-user.dto';
 import { UpdateRoomDto } from '../../app/rooms/dto/update-room.dto';
 import { CreatePlayerDto } from '../../app/players/dto/create-player.dto';
 import { UpdatePlayerDto } from '../../app/players/dto/update-player.dto';
+import { CreateGameDto } from '../../app/games/dto/create-game.dto';
+import { UpdateGameDto } from '../../app/games/dto/update-game.dto';
 
 @Injectable()
 export class PrismaService {
@@ -101,5 +103,34 @@ export class PrismaService {
 
   async deletePlayer(options: { where: { id: number } }) {
     return this.prisma.player.delete(options);
+  }
+
+  // Games
+  async createGame(data: CreateGameDto) {
+    return this.prisma.game.create({
+      data,
+    });
+  }
+
+  async findGameById(id: number, options?: any) {
+    return this.prisma.game.findUnique({
+      where: { id },
+      ...options,
+    });
+  }
+
+  async findGames(options?: any) {
+    return this.prisma.game.findMany(options);
+  }
+
+  async updateGame(id: number, data: UpdateGameDto) {
+    return this.prisma.game.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteGame(options: { where: { id: number } }) {
+    return this.prisma.game.delete(options);
   }
 }
