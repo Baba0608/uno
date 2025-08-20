@@ -9,6 +9,7 @@ import { CreatePlayerDto } from '../../app/players/dto/create-player.dto';
 import { UpdatePlayerDto } from '../../app/players/dto/update-player.dto';
 import { CreateGameDto } from '../../app/games/dto/create-game.dto';
 import { UpdateGameDto } from '../../app/games/dto/update-game.dto';
+import { CreateCoinTransactionDto } from '../../app/coin-transactions/dto/create-coin-transaction.dto';
 
 @Injectable()
 export class PrismaService {
@@ -132,5 +133,12 @@ export class PrismaService {
 
   async deleteGame(options: { where: { id: number } }) {
     return this.prisma.game.delete(options);
+  }
+
+  // Coin Transactions
+  async createCoinTransaction(data: CreateCoinTransactionDto) {
+    return this.prisma.coinTransaction.create({
+      data,
+    });
   }
 }
