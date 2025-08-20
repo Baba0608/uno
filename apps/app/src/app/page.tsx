@@ -24,15 +24,13 @@ export default function Index() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/users/2`);
-        console.log(response.data);
+        const response = await axios.get(`${BACKEND_URL}/users/3`);
         setUser(response.data);
         setError(null);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching user:', err);
-        setError(
-          'Failed to fetch user data. Make sure the backend is running on http://localhost:8000'
-        );
+        setError(err.response.data.message);
+        return;
       }
     };
     fetchUser();
