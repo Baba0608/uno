@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { JoinRoomDto } from './dto/join-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { PrismaService } from '../../shared/services/prisma.service';
 import { generateRoomCode } from '../../shared/utils/game-helpers';
@@ -47,6 +48,18 @@ export class RoomsService {
   remove(id: number) {
     return this.prismaService.deleteRoom({
       where: { id },
+    });
+  }
+
+  async join(joinRoomDto: JoinRoomDto, userId: number) {
+    const room = await this.prismaService.findRoomByCode(joinRoomDto.code);
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
+
+    return this.prismaService.createPlayer({
+      roomId: room.id,
+      userId,
     });
   }
 }

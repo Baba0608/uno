@@ -62,6 +62,13 @@ export class PrismaService {
     });
   }
 
+  async findRoomByCode(code: string, options?: any) {
+    return this.prisma.room.findUnique({
+      where: { code },
+      ...options,
+    });
+  }
+
   async findRooms(options?: any) {
     return this.prisma.room.findMany(options);
   }

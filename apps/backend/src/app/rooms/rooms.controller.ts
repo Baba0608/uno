@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { JoinRoomDto } from './dto/join-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
 
@@ -46,5 +47,11 @@ export class RoomsController {
   @UseGuards(AuthGuard)
   remove(@Param('id') id: string) {
     return this.roomsService.remove(+id);
+  }
+
+  @Post('join')
+  @UseGuards(AuthGuard)
+  join(@Body() joinRoomDto: JoinRoomDto, @Req() req: any) {
+    return this.roomsService.join(joinRoomDto, req.user.id);
   }
 }
