@@ -1,4 +1,4 @@
-import { IsNumber, IsEnum, IsOptional } from 'class-validator';
+import { IsNumber, IsEnum, IsOptional, IsString } from 'class-validator';
 import { TransactionType } from '../../../../generated/prisma';
 
 export class CreateCoinTransactionDto {
@@ -14,4 +14,8 @@ export class CreateCoinTransactionDto {
   @IsOptional()
   @IsNumber()
   gameId?: number;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }

@@ -8,7 +8,7 @@ CREATE TABLE "public"."users" (
     "email" TEXT,
     "coins" INTEGER NOT NULL DEFAULT 1000,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -17,9 +17,9 @@ CREATE TABLE "public"."users" (
 CREATE TABLE "public"."rooms" (
     "id" SERIAL NOT NULL,
     "code" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
     "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "rooms_pkey" PRIMARY KEY ("id")
 );
@@ -33,6 +33,8 @@ CREATE TABLE "public"."games" (
     "reward" INTEGER NOT NULL DEFAULT 0,
     "roomId" INTEGER NOT NULL,
     "winnerId" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "games_pkey" PRIMARY KEY ("id")
 );
@@ -42,10 +44,12 @@ CREATE TABLE "public"."players" (
     "id" SERIAL NOT NULL,
     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isHost" BOOLEAN NOT NULL DEFAULT false,
-    "isReady" BOOLEAN NOT NULL DEFAULT false,
+    "isReady" BOOLEAN NOT NULL DEFAULT true,
     "userId" INTEGER NOT NULL,
     "roomId" INTEGER NOT NULL,
     "gameId" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "players_pkey" PRIMARY KEY ("id")
 );
@@ -55,9 +59,11 @@ CREATE TABLE "public"."coin_transactions" (
     "id" SERIAL NOT NULL,
     "amount" INTEGER NOT NULL,
     "type" "public"."TransactionType" NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "notes" TEXT,
     "userId" INTEGER NOT NULL,
     "gameId" INTEGER,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "coin_transactions_pkey" PRIMARY KEY ("id")
 );
@@ -81,16 +87,16 @@ ALTER TABLE "public"."games" ADD CONSTRAINT "games_roomId_fkey" FOREIGN KEY ("ro
 ALTER TABLE "public"."games" ADD CONSTRAINT "games_winnerId_fkey" FOREIGN KEY ("winnerId") REFERENCES "public"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."players" ADD CONSTRAINT "players_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."players" ADD CONSTRAINT "players_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "public"."games"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."players" ADD CONSTRAINT "players_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "public"."rooms"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."players" ADD CONSTRAINT "players_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "public"."games"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "public"."coin_transactions" ADD CONSTRAINT "coin_transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "public"."players" ADD CONSTRAINT "players_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "public"."coin_transactions" ADD CONSTRAINT "coin_transactions_gameId_fkey" FOREIGN KEY ("gameId") REFERENCES "public"."games"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."coin_transactions" ADD CONSTRAINT "coin_transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

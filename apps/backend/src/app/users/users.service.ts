@@ -4,6 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { TransactionType } from '../../../generated/prisma';
 import { CreateCoinTransactionDto } from '../coin-transactions/dto/create-coin-transaction.dto';
+import { COIN_TRANSACTION_NOTES } from '../../shared/constants/coin-transaction-notes';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,7 @@ export class UsersService {
       amount: user.coins,
       type: TransactionType.EARN,
       userId: user.id,
+      notes: COIN_TRANSACTION_NOTES.INITIAL_COINS,
     });
 
     return user;

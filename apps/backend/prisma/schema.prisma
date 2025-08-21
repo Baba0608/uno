@@ -12,23 +12,25 @@ model User {
   username     String            @unique
   email        String?           @unique
   coins        Int               @default(1000)
-  createdAt    DateTime          @default(now()) @map("created_at")
-  updatedAt    DateTime          @updatedAt @map("updated_at")
   transactions CoinTransaction[]
   gamesWon     Game[]            @relation("GameWinner")
   players      Player[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
 model Room {
-  id        Int      @id @default(autoincrement())
-  code      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isActive  Boolean  @default(true)
-  game      Game?
-  players   Player[]
+  id       Int      @id @default(autoincrement())
+  code     String   @unique
+  isActive Boolean  @default(true)
+  game     Game?
+  players  Player[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("rooms")
 }
@@ -46,6 +48,9 @@ model Game {
   winner       User?             @relation("GameWinner", fields: [winnerId], references: [id])
   players      Player[]
 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
   @@map("games")
 }
 
@@ -53,7 +58,7 @@ model Player {
   id       Int      @id @default(autoincrement())
   joinedAt DateTime @default(now())
   isHost   Boolean  @default(false)
-  isReady  Boolean  @default(false)
+  isReady  Boolean  @default(true)
   userId   Int
   roomId   Int
   gameId   Int?
@@ -61,18 +66,24 @@ model Player {
   room     Room     @relation(fields: [roomId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
   @@map("players")
 }
 
 model CoinTransaction {
-  id        Int             @id @default(autoincrement())
-  amount    Int
-  type      TransactionType
-  createdAt DateTime        @default(now())
-  userId    Int
-  gameId    Int?
-  game      Game?           @relation(fields: [gameId], references: [id])
-  user      User            @relation(fields: [userId], references: [id])
+  id     Int             @id @default(autoincrement())
+  amount Int
+  type   TransactionType
+  notes  String?
+  userId Int
+  gameId Int?
+  game   Game?           @relation(fields: [gameId], references: [id])
+  user   User            @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("coin_transactions")
 }

@@ -18,6 +18,7 @@ export class RoomsService {
     await this.prismaService.createPlayer({
       roomId: room.id,
       userId,
+      isHost: true,
     });
 
     return room;
