@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
@@ -19,8 +20,8 @@ export class RoomsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createRoomDto: CreateRoomDto) {
-    return this.roomsService.create(createRoomDto);
+  create(@Body() createRoomDto: CreateRoomDto, @Req() req: any) {
+    return this.roomsService.create(createRoomDto, req.user.id);
   }
 
   @Get()

@@ -10,7 +10,7 @@ export class AuthGuard implements CanActivate {
       if (!userId) {
         return false;
       }
-      request.user = { id: userId };
+      request.user = { id: parseInt(userId) };
       return true;
     } catch (error) {
       console.error(error);

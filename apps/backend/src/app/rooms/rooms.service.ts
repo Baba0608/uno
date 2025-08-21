@@ -2,13 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { PrismaService } from '../../shared/services/prisma.service';
+import { generateRoomCode } from '../../shared/utils/game-helpers';
 
 @Injectable()
 export class RoomsService {
   constructor(private prismaService: PrismaService) {}
 
-  create(createRoomDto: CreateRoomDto) {
-    return this.prismaService.createRoom(createRoomDto);
+  async create(createRoomDto: CreateRoomDto, userId: number) {
+    const code = createRoomDto.code ?? generateRoomCode();
+    const room = await this.prismaService.createRoom({
+      code,
+      isActive: createRoomDto.isActive ?? true,
+    });
+
+    await this.prismaService.createPlayer({
+      roomId: room.id,
+      userId,
+    });
+
+    return room;
   }
 
   findAll() {

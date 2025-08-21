@@ -3,15 +3,15 @@ import { IsDate, IsBoolean, IsNumber, IsOptional } from 'class-validator';
 export class CreatePlayerDto {
   @IsOptional()
   @IsDate()
-  joinedAt: Date;
+  joinedAt?: Date;
 
   @IsOptional()
   @IsBoolean()
-  isHost: boolean;
+  isHost?: boolean;
 
   @IsOptional()
   @IsBoolean()
-  isReady: boolean;
+  isReady?: boolean;
 
   @IsNumber()
   userId: number;
@@ -21,5 +21,5 @@ export class CreatePlayerDto {
 
   @IsOptional()
   @IsNumber()
-  gameId: number;
+  gameId?: number;
 }

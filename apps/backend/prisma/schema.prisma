@@ -1,12 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -14,32 +7,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model User {
-  id            Int                @id @default(autoincrement())
-  username      String             @unique
-  email         String?            @unique
-  coins         Int                @default(1000) // starting coins
-  createdAt     DateTime           @default(now()) @map("created_at")
-  updatedAt     DateTime           @updatedAt @map("updated_at")
-
-  // Relations
-  players       Player[]
-  transactions  CoinTransaction[]
-  gamesWon      Game[]             @relation("GameWinner")
+  id           Int               @id @default(autoincrement())
+  username     String            @unique
+  email        String?           @unique
+  coins        Int               @default(1000)
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  transactions CoinTransaction[]
+  gamesWon     Game[]            @relation("GameWinner")
+  players      Player[]
 
   @@map("users")
 }
 
-
 model Room {
   id        Int      @id @default(autoincrement())
-  code      String   @unique // 6-digit unique code
+  code      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isActive  Boolean  @default(true)
-
-  // Relations
   game      Game?
   players   Player[]
 
@@ -47,63 +34,52 @@ model Room {
 }
 
 model Game {
-  id        Int      @id @default(autoincrement())
-  startedAt DateTime @default(now())
-  endedAt   DateTime?
-  entryFee  Int      @default(0)
-  reward    Int      @default(0)
-
-  roomId    Int      @unique
-  room      Room     @relation(fields: [roomId], references: [id])
-  
-  winnerId  Int?
-  winner    User?    @relation("GameWinner", fields: [winnerId], references: [id])
-
-  players   Player[]
-
+  id           Int               @id @default(autoincrement())
+  startedAt    DateTime          @default(now())
+  endedAt      DateTime?
+  entryFee     Int               @default(0)
+  reward       Int               @default(0)
+  roomId       Int               @unique
+  winnerId     Int?
   transactions CoinTransaction[]
+  room         Room              @relation(fields: [roomId], references: [id])
+  winner       User?             @relation("GameWinner", fields: [winnerId], references: [id])
+  players      Player[]
 
   @@map("games")
 }
 
 model Player {
-  id        Int      @id @default(autoincrement())
-  joinedAt  DateTime @default(now())
-  isHost    Boolean  @default(false)
-  isReady   Boolean  @default(false)
-
-  // Relations
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-
-  roomId    Int
-  room      Room     @relation(fields: [roomId], references: [id])
-
-  gameId    Int? 
-  game      Game?    @relation(fields: [gameId], references: [id])
+  id       Int      @id @default(autoincrement())
+  joinedAt DateTime @default(now())
+  isHost   Boolean  @default(false)
+  isReady  Boolean  @default(false)
+  userId   Int
+  roomId   Int
+  gameId   Int?
+  game     Game?    @relation(fields: [gameId], references: [id])
+  room     Room     @relation(fields: [roomId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
 
   @@map("players")
 }
 
 model CoinTransaction {
-  id        Int      @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   amount    Int
   type      TransactionType
-  createdAt DateTime @default(now())
-
-  // Relations
+  createdAt DateTime        @default(now())
   userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-
   gameId    Int?
-  game      Game?    @relation(fields: [gameId], references: [id])
+  game      Game?           @relation(fields: [gameId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
 
   @@map("coin_transactions")
 }
 
 enum TransactionType {
-  EARN       // e.g., daily bonus, invite reward
-  SPEND      // e.g., customizations, buy from store etc
-  ENTRY_FEE  // deducted when joining a game
-  REWARD     // won a game
+  EARN
+  SPEND
+  ENTRY_FEE
+  REWARD
 }
