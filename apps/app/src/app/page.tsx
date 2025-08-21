@@ -1,12 +1,13 @@
 'use client';
 
-import axios from 'axios';
-
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 
 import Button from '../components/Button';
 import Error from '../components/Error';
+
+import { fetchUser } from '../server/actions';
+import { getAuth } from '../utils/auth';
 
 interface User {
   id: number;
@@ -14,26 +15,33 @@ interface User {
   coins: number;
 }
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000/api';
-
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const loadUser = async () => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/users/3`);
-        setUser(response.data);
-        setError(null);
+        const { userId } = await getAuth();
+        if (!userId) {
+          // TODO: ask user to login
+          setError('User not found');
+          return;
+        }
+
+        const result = await fetchUser(userId);
+
+        if (result.error) {
+          setError(result.error);
+        } else {
+          setUser(result.data);
+          setError(null);
+        }
       } catch (err: any) {
-        console.error('Error fetching user:', err);
-        setError(err.response.data.message);
-        return;
+        setError(err.message || 'Failed to fetch user');
       }
     };
-    fetchUser();
+    loadUser();
   }, []);
 
   if (error) {
