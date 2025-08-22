@@ -2,11 +2,12 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import Button from '../components/Button';
 import Error from '../components/Error';
 
-import { fetchUser } from '../server/actions';
+import { fetchUser, createRoom } from '../server/actions';
 import { getAuth } from '../utils/auth';
 
 interface User {
@@ -18,6 +19,8 @@ interface User {
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -44,6 +47,28 @@ export default function Index() {
     loadUser();
   }, []);
 
+  const handleCreateRoom = async () => {
+    if (isCreatingRoom) return;
+
+    setIsCreatingRoom(true);
+    setError(null);
+
+    try {
+      const result = await createRoom();
+
+      if (result.error) {
+        setError(result.error);
+      } else {
+        // Redirect to the created room
+        router.push(`/rooms/${result.data.id}`);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to create room');
+    } finally {
+      setIsCreatingRoom(false);
+    }
+  };
+
   if (error) {
     return <Error error={error} />;
   }
@@ -68,7 +93,10 @@ export default function Index() {
         <div>
           <Image src="/logo.png" alt="Logo" width={300} height={300} />
         </div>
-        <Button value="CREATE ROOM" />
+        <Button
+          value={isCreatingRoom ? 'Creating...' : 'CREATE ROOM'}
+          onClick={handleCreateRoom}
+        />
         <Button value="JOIN ROOM" />
         <div className="flex flex-col items-center gap-2">
           <p className="text-2xl text-white">Room Code</p>

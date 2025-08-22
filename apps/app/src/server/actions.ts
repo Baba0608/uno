@@ -43,3 +43,30 @@ export async function updateUser(userId: string, userData: any) {
     };
   }
 }
+
+export async function createRoom() {
+  try {
+    const response = await Backend('/rooms', {
+      method: 'POST',
+      body: {},
+    });
+    return { data: response.data, error: null };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || 'Failed to create room',
+    };
+  }
+}
+
+export async function fetchRoom(roomId: string) {
+  try {
+    const response = await Backend(`/rooms/${roomId}`);
+    return { data: response.data, error: null };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || 'Failed to fetch room',
+    };
+  }
+}

@@ -10,7 +10,8 @@ interface BackendOptions {
 }
 
 export async function Backend(url: string, options: BackendOptions = {}) {
-  const baseURL = `${process.env.NEXT_PUBLIC_BACKEND_URL}`;
+  const baseURL =
+    process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000/api';
 
   // Prepare headers
   const headers: Record<string, string> = {
