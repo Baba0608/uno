@@ -1,7 +1,10 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import jwt from 'jsonwebtoken';
 
-const handler = NextAuth({
+const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+
+export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -9,14 +12,77 @@ const handler = NextAuth({
     }),
   ],
   session: {
-    strategy: 'jwt',
+    strategy: 'jwt' as const,
+    maxAge: 60 * 60, // 1 hour in seconds
+  },
+  jwt: {
+    maxAge: 60 * 60, // 1 hour in seconds
   },
   callbacks: {
     async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
-        token.username = user.name || user.email?.split('@')[0] || 'Player';
-        token.coins = 1000;
+        // If this is a new sign-in, get the backend user data
+        if (account?.provider === 'google') {
+          // OAuth tokens are available here:
+          // account.access_token - Google access token
+          // account.refresh_token - Google refresh token
+          // account.providerAccountId - Google user ID
+
+          try {
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/oauth`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  email: user.email,
+                  name: user.name,
+                  provider: 'google',
+                  providerId: user.id,
+                }),
+              }
+            );
+
+            if (response.ok) {
+              const userData = await response.json();
+              token.id = userData.id.toString();
+              token.username =
+                userData.username ||
+                user.name ||
+                user.email?.split('@')[0] ||
+                'Player';
+              // Generate a secure JWT token for API authentication
+              token.apiToken = generateAPIToken(userData.id.toString());
+            } else {
+              console.error(
+                'Backend API failed:',
+                response.status,
+                response.statusText
+              );
+              // Fallback if backend call fails
+              token.id = user.id;
+              token.username =
+                user.name || user.email?.split('@')[0] || 'Player';
+              token.apiToken = generateAPIToken(user.id);
+            }
+          } catch (error) {
+            console.error('Error creating user in backend:', error);
+            // Fallback if backend call fails
+            token.id = user.id;
+            token.username = user.name || user.email?.split('@')[0] || 'Player';
+            token.apiToken = generateAPIToken(user.id);
+          }
+        } else {
+          // For existing sessions, keep the current token data
+          token.id = user.id;
+          token.username = user.name || user.email?.split('@')[0] || 'Player';
+          // Ensure API token exists
+          if (!token.apiToken) {
+            token.apiToken = generateAPIToken(user.id);
+          }
+        }
       }
       return token;
     },
@@ -24,49 +90,33 @@ const handler = NextAuth({
       if (token && session.user) {
         session.user.id = token.id;
         session.user.username = token.username;
-        session.user.coins = token.coins;
+        session.user.apiToken = token.apiToken;
       }
+
       return session;
     },
     async signIn({ user, account, profile }) {
-      if (account?.provider === 'google') {
-        try {
-          // Call your NestJS backend API to handle user creation
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/oauth`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                email: user.email,
-                name: user.name,
-                provider: 'google',
-                providerId: user.id,
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            console.error('Failed to create user in backend');
-            return false;
-          }
-
-          const userData = await response.json();
-          // Update the user object with backend data
-          user.id = userData.id.toString();
-        } catch (error) {
-          console.error('Error creating user:', error);
-          return false;
-        }
-      }
+      // The signIn callback is now handled in the JWT callback
       return true;
     },
   },
   pages: {
     signIn: '/auth/signin',
   },
-});
+};
+
+// Helper function to generate JWT API tokens
+function generateAPIToken(userId: string): string {
+  const payload = {
+    userId,
+    type: 'api',
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiration
+  };
+
+  return jwt.sign(payload, jwtSecret);
+}
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

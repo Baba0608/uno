@@ -1,6 +1,7 @@
 'use server';
 
 import { getServerSession } from 'next-auth';
+import { authOptions } from '../app/api/auth/[...nextauth]/route';
 
 // Types for better type safety
 interface BackendOptions {
@@ -24,11 +25,14 @@ export async function Backend(url: string, options: BackendOptions = {}) {
   }
 
   // Handle authentication with NextAuth session
-  const session = await getServerSession();
-  if (session?.user?.id) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error('Please sign in to continue');
+  }
+
+  if (session?.user?.id && session?.user?.apiToken) {
     headers['x-user-id'] = session.user.id;
-    // You can add JWT token here if needed
-    // headers.Authorization = `Bearer ${session.accessToken}`;
+    headers['Authorization'] = `Bearer ${session.user.apiToken}`;
   }
 
   // Prepare request body
