@@ -5,10 +5,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import Button from '../components/Button';
-import { createRoom } from '../server/actions';
+import { createRoom, joinRoom } from '../server/actions';
 import Error from '../components/Error';
 
 export default function Index() {
+  const [roomCode, setRoomCode] = useState<string>('');
   const [isCreatingRoom, setIsCreatingRoom] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -34,6 +35,18 @@ export default function Index() {
     }
   };
 
+  const handleJoinRoom = async (roomCode: string) => {
+    if (!roomCode.trim()) return;
+
+    const result = await joinRoom(roomCode);
+
+    if (result.error) {
+      setError(result.error);
+    } else {
+      router.push(`/rooms/${result.data.id}`);
+    }
+  };
+
   if (error) {
     return <Error error={error} />;
   }
@@ -48,12 +61,18 @@ export default function Index() {
           value={isCreatingRoom ? 'Creating...' : 'CREATE ROOM'}
           onClick={handleCreateRoom}
         />
-        <Button value="JOIN ROOM" />
+        <Button
+          value="JOIN ROOM"
+          onClick={() => handleJoinRoom(roomCode)}
+          disabled={!roomCode}
+        />
         <div className="flex flex-col items-center gap-2">
           <p className="text-2xl text-white">Room Code</p>
           <input
             type="text"
             className="text-xl bg-blue-700 px-3 py-2 text-white w-80 rounded-xl focus:outline-none"
+            value={roomCode}
+            onChange={(e) => setRoomCode(e.target.value)}
           />
         </div>
       </div>

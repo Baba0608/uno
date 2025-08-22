@@ -57,9 +57,11 @@ export class RoomsService {
       throw new NotFoundException('Room not found');
     }
 
-    return this.prismaService.createPlayer({
+    await this.prismaService.createPlayer({
       roomId: room.id,
       userId,
     });
+
+    return room;
   }
 }

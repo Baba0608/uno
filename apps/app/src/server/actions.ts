@@ -70,3 +70,19 @@ export async function fetchRoom(roomId: string) {
     };
   }
 }
+
+export async function joinRoom(roomCode: string) {
+  try {
+    const response = await Backend(`/rooms/join`, {
+      method: 'POST',
+      body: { code: roomCode },
+    });
+    console.log('response', response);
+    return { data: response.data, error: null };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || 'Failed to join room',
+    };
+  }
+}
