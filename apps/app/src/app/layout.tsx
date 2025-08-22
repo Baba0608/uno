@@ -1,5 +1,6 @@
 import './global.css';
 import AppLayout from '../components/AppLayout';
+import Providers from '../components/Providers';
 
 export const metadata = {
   title: 'UNO',
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <AppLayout>{children}</AppLayout>
+        <Providers>
+          <AppLayout>{children}</AppLayout>
+        </Providers>
       </body>
     </html>
   );

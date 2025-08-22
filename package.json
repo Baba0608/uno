@@ -60,6 +60,7 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.10.0",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/mapped-types": "*",
@@ -69,6 +70,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "next": "~15.2.4",
+    "next-auth": "^4.24.11",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "reflect-metadata": "^0.1.13",

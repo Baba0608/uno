@@ -1,56 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 import Header from './Header';
-import Error from './Error';
-import { fetchUser } from '../server/actions';
-import { getAuth } from '../utils/auth';
-
-interface User {
-  id: number;
-  username: string;
-  coins: number;
-}
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const { userId } = await getAuth();
-        if (!userId) {
-          // TODO: ask user to login
-          setError('User not found');
-          setIsLoading(false);
-          return;
-        }
-
-        const result = await fetchUser(userId);
-
-        setUser(result.data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch user');
-      }
-      setIsLoading(false);
-    };
-    loadUser();
-  }, []);
-
-  // Show error if there's an error
-  if (error) {
-    return <Error error={error} />;
-  }
+    // Only redirect if not already on the signin page
+    if (status === 'unauthenticated' && pathname !== '/auth/signin') {
+      router.push('/auth/signin');
+    }
+  }, [status, router, pathname]);
 
   // Show loading if still loading
-  if (isLoading) {
+  if (status === 'loading') {
     return (
       <div className="w-screen h-screen bg-blue-900 flex flex-col justify-center items-center">
         <div className="text-white text-2xl">Loading...</div>
@@ -58,8 +31,22 @@ export default function AppLayout({ children }: AppLayoutProps) {
     );
   }
 
-  // Don't show header on loading page if user is null
-  if (!user) {
+  // If on signin page and unauthenticated, render the signin page
+  if (status === 'unauthenticated' && pathname === '/auth/signin') {
+    return <>{children}</>;
+  }
+
+  // Show error if not authenticated and not on signin page
+  if (status === 'unauthenticated') {
+    return (
+      <div className="w-screen h-screen bg-blue-900 flex flex-col justify-center items-center">
+        <div className="text-white text-2xl">Please sign in to continue</div>
+      </div>
+    );
+  }
+
+  // Don't show header if session is null
+  if (!session?.user) {
     return (
       <div className="w-screen h-screen bg-blue-900 flex flex-col justify-center items-center">
         <div className="text-white text-2xl">Loading...</div>
@@ -69,7 +56,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="w-screen h-screen bg-blue-900 flex flex-col">
-      <Header user={user} />
+      <Header user={session.user} />
       <div className="flex-1 flex justify-center items-center">{children}</div>
     </div>
   );

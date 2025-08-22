@@ -1,6 +1,7 @@
 'use server';
 
 import { Backend } from './backend';
+import { getServerSession } from 'next-auth';
 
 export async function fetchUser(userId: string) {
   try {
@@ -46,6 +47,11 @@ export async function updateUser(userId: string, userData: any) {
 
 export async function createRoom() {
   try {
+    const session = await getServerSession();
+    if (!session?.user?.id) {
+      return { data: null, error: 'Not authenticated' };
+    }
+
     const response = await Backend('/rooms', {
       method: 'POST',
       body: {},

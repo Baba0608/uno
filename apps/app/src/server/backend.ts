@@ -1,6 +1,6 @@
 'use server';
 
-import { getAuthHeaders } from '../utils/auth';
+import { getServerSession } from 'next-auth';
 
 // Types for better type safety
 interface BackendOptions {
@@ -23,9 +23,13 @@ export async function Backend(url: string, options: BackendOptions = {}) {
     headers['Content-Type'] = 'application/json;charset=utf-8';
   }
 
-  // Handle authentication
-  const authHeaders = await getAuthHeaders();
-  Object.assign(headers, authHeaders);
+  // Handle authentication with NextAuth session
+  const session = await getServerSession();
+  if (session?.user?.id) {
+    headers['x-user-id'] = session.user.id;
+    // You can add JWT token here if needed
+    // headers.Authorization = `Bearer ${session.accessToken}`;
+  }
 
   // Prepare request body
   let body: string | FormData | undefined;

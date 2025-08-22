@@ -5,10 +5,18 @@ import { UsersModule } from './users/users.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { GamesModule } from './games/games.module';
 import { PlayersModule } from './players/players.module';
+import { AuthModule } from './auth/auth.module';
 import { SharedModule } from '../shared/shared.module';
 
 @Module({
-  imports: [SharedModule, UsersModule, RoomsModule, GamesModule, PlayersModule],
+  imports: [
+    SharedModule,
+    UsersModule,
+    RoomsModule,
+    GamesModule,
+    PlayersModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

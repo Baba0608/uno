@@ -1,13 +1,22 @@
+import { signOut } from 'next-auth/react';
+
 interface HeaderProps {
   user: {
-    id: number;
+    id: string;
     username: string;
     coins: number;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
   };
 }
 
 export default function Header(props: HeaderProps) {
   const { user } = props;
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: '/auth/signin' });
+  };
 
   return (
     <div className="w-full bg-blue-800 p-4 flex justify-between items-center">
@@ -25,6 +34,12 @@ export default function Header(props: HeaderProps) {
         <div className="bg-yellow-500 text-yellow-900 px-3 py-1 rounded-full font-semibold">
           {user.coins} coins
         </div>
+        <button
+          onClick={handleSignOut}
+          className="bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition-colors"
+        >
+          Sign Out
+        </button>
       </div>
     </div>
   );
