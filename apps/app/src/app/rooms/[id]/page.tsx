@@ -88,7 +88,7 @@ export default function RoomPage() {
       </div>
 
       {/* Player Slots */}
-      <div className="flex flex-wrap justify-center gap-6 mb-6 w-[600px] mx-auto">
+      <div className="flex flex-wrap justify-center gap-6 mb-6 max-w-2xl mx-auto">
         {room.players.map((player: Player) => (
           <UserCard key={player.id} user={player.user} />
         ))}

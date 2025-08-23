@@ -33,7 +33,11 @@ export default function Header(props: HeaderProps) {
     <div className="w-full bg-blue-800 p-4 flex justify-between items-center">
       <div className="flex items-center gap-3">
         <div className="text-white bg-red-500 rounded-full w-10 h-10 flex items-center justify-center text-2xl font-semibold">
-          {userData?.username?.[0]?.toUpperCase()}
+          <img
+            src={userData?.image}
+            alt={userData?.username}
+            className="w-full h-full object-cover rounded-full"
+          />
         </div>
         <div className="flex flex-col">
           <p className="text-white text-lg font-semibold">
