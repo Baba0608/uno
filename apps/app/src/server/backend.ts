@@ -54,6 +54,38 @@ export async function Backend(url: string, options: BackendOptions = {}) {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+
+      // If token is expired, try to refresh the session
+      if (
+        response.status === 401 &&
+        errorData.message?.includes('Invalid token')
+      ) {
+        // Force session refresh by updating the session
+        // This will regenerate the API token
+        const newSession = await getServerSession(authOptions);
+        if (
+          newSession?.user?.apiToken &&
+          newSession.user.apiToken !== session.user.apiToken
+        ) {
+          // Retry the request with the new token
+          headers['Authorization'] = `Bearer ${newSession.user.apiToken}`;
+          const retryResponse = await fetch(`${baseURL}${url}`, {
+            method: options.method || 'GET',
+            headers,
+            body,
+          });
+
+          if (retryResponse.ok) {
+            const retryData = await retryResponse.json().catch(() => null);
+            return {
+              data: retryData,
+              status: retryResponse.status,
+              statusText: retryResponse.statusText,
+            };
+          }
+        }
+      }
+
       throw new Error(
         errorData.message || `HTTP ${response.status}: ${response.statusText}`
       );

@@ -13,4 +13,8 @@ export class CreateOAuthUserDto {
 
   @IsString()
   providerId: string;
+
+  @IsString()
+  @IsOptional()
+  image?: string;
 }

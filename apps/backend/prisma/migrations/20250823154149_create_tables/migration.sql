@@ -7,6 +7,7 @@ CREATE TABLE "public"."users" (
     "username" TEXT NOT NULL,
     "email" TEXT,
     "coins" INTEGER NOT NULL DEFAULT 1000,
+    "image" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

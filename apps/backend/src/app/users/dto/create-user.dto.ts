@@ -12,4 +12,8 @@ export class CreateUserDto {
   @Min(0)
   @IsOptional()
   coins?: number;
+
+  @IsString()
+  @IsOptional()
+  image?: string;
 }

@@ -7,7 +7,7 @@ export class AuthService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async handleOAuthSignIn(createOAuthUserDto: CreateOAuthUserDto) {
-    const { email, name, provider, providerId } = createOAuthUserDto;
+    const { email, name, provider, providerId, image } = createOAuthUserDto;
 
     // Check if user already exists
     const users = await this.prismaService.findUsers({ where: { email } });
@@ -21,6 +21,7 @@ export class AuthService {
           name ||
           email.split('@')[0] ||
           `Player ${Math.floor(Math.random() * 1000000)}`,
+        image: image,
       });
     }
 

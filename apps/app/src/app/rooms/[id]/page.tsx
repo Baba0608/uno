@@ -4,11 +4,30 @@ import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { fetchRoom } from '../../../server/actions';
 import Error from '../../../components/Error';
+import UserCard from '../../../components/UserCard';
+import { useUser } from '../../../hooks/useUser';
 
 interface Room {
   id: number;
   code: string;
   isActive: boolean;
+  players: Player[];
+}
+
+interface User {
+  id: number;
+  username: string;
+  image: string;
+  coins: number;
+}
+
+interface Player {
+  id: number;
+  username: string;
+  coins: number;
+  image: string;
+  user: User;
+  isHost: boolean;
 }
 
 export default function RoomPage() {
@@ -16,12 +35,21 @@ export default function RoomPage() {
   const roomId = params.id as string;
   const [room, setRoom] = useState<Room | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [player, setPlayer] = useState<Player | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
     const loadRoom = async () => {
       try {
         const roomResult = await fetchRoom(roomId);
         setRoom(roomResult.data);
+        if (user) {
+          setPlayer(
+            roomResult.data.players.find(
+              (player: Player) => player.user.id === parseInt(user.id)
+            )
+          );
+        }
       } catch (err: any) {
         setError(err.message || 'Failed to fetch room');
       }
@@ -33,26 +61,56 @@ export default function RoomPage() {
     return <Error error={error} />;
   }
 
-  if (!room) {
-    return (
-      <div className="w-96 flex flex-col justify-center items-center gap-5">
-        <div className="text-white text-2xl">Loading room...</div>
-      </div>
-    );
+  if (!room || !user) {
+    return <div className="text-white text-2xl">Loading room...</div>;
   }
 
   return (
-    <div className="w-96 flex flex-col justify-center items-center gap-5">
-      <div className="text-center">
-        <h1 className="text-4xl text-white font-bold mb-4">Room Created!</h1>
-        <p className="text-xl text-white mb-2">Room ID: {room.code}</p>
-        <p className="text-lg text-gray-300">
-          Share this room code with others to join
+    <div>
+      {/* Room Code Section */}
+      <div className="rounded-lg p-4 mb-6 flex flex-col items-center">
+        <div className="flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <div className="font-medium text-white text-lg">Room Code</div>
+            <div className="bg-blue-500 text-white text-2xl px-3 py-1 rounded font-mono font-bold">
+              {room.code}
+            </div>
+          </div>
+        </div>
+        <p className="text-lg text-center text-white mt-2">
+          Share this room code with friends and ask them to join
         </p>
       </div>
 
-      <div className="mt-8 flex flex-col items-center justify-center gap-2">
-        <p className="text-white text-lg">Waiting for players to join...</p>
+      {/* Game Info */}
+      <div className="text-green-500 text-center mb-6">
+        <p className="text-lg">Entry Amount : 100</p>
+      </div>
+
+      {/* Player Slots */}
+      <div className="flex flex-wrap justify-center gap-6 mb-6 w-[600px] mx-auto">
+        {room.players.map((player: Player) => (
+          <UserCard key={player.id} user={player.user} />
+        ))}
+      </div>
+
+      {/* Game Start Info */}
+      <div className="text-center mb-6">
+        {player &&
+          (player.isHost ? (
+            // Current user is host - show start button only
+            <div className="flex flex-col items-center gap-3">
+              <button className="bg-green-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md">
+                Start Game
+              </button>
+            </div>
+          ) : (
+            // Current user is not host - show host name message
+            <p className="text-green-500 text-lg">
+              {room.players.find((p) => p.isHost)?.user.username} will start the
+              game
+            </p>
+          ))}
       </div>
     </div>
   );

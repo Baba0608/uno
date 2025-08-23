@@ -13,10 +13,10 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt' as const,
-    maxAge: 60 * 60, // 1 hour in seconds
+    maxAge: 24 * 60 * 60, // 24 hours in seconds
   },
   jwt: {
-    maxAge: 60 * 60, // 1 hour in seconds
+    maxAge: 24 * 60 * 60, // 24 hours in seconds
   },
   callbacks: {
     async jwt({ token, user, account }) {
@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
                   name: user.name,
                   provider: 'google',
                   providerId: user.id,
+                  image: user.image,
                 }),
               }
             );
@@ -53,6 +54,7 @@ export const authOptions: NextAuthOptions = {
                 user.name ||
                 user.email?.split('@')[0] ||
                 'Player';
+              token.image = userData.image;
               // Generate a secure JWT token for API authentication
               token.apiToken = generateAPIToken(userData.id.toString());
             } else {
@@ -78,6 +80,7 @@ export const authOptions: NextAuthOptions = {
           // For existing sessions, keep the current token data
           token.id = user.id;
           token.username = user.name || user.email?.split('@')[0] || 'Player';
+          token.image = user.image;
           // Ensure API token exists
           if (!token.apiToken) {
             token.apiToken = generateAPIToken(user.id);
@@ -91,6 +94,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.username = token.username;
         session.user.apiToken = token.apiToken;
+        session.user.image = token.image as string;
       }
 
       return session;
@@ -111,7 +115,7 @@ function generateAPIToken(userId: string): string {
     userId,
     type: 'api',
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiration
+    exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours expiration
   };
 
   return jwt.sign(payload, jwtSecret);

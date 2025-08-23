@@ -12,6 +12,7 @@ model User {
   username     String            @unique
   email        String?           @unique
   coins        Int               @default(1000)
+  image        String?
   transactions CoinTransaction[]
   gamesWon     Game[]            @relation("GameWinner")
   players      Player[]
