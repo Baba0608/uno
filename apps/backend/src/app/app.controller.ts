@@ -9,4 +9,10 @@ export class AppController {
   getData() {
     return this.appService.getData();
   }
+
+  // get all cards
+  @Get('cards')
+  getCards() {
+    return this.appService.getCards();
+  }
 }

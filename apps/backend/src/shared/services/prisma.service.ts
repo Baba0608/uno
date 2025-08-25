@@ -160,4 +160,9 @@ export class PrismaService {
       data,
     });
   }
+
+  // Cards
+  async findCards(options?: any) {
+    return this.prisma.card.findMany(options);
+  }
 }
