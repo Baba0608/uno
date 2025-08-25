@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 interface UserCardProps {
   user: {
     id: number;
@@ -20,10 +22,12 @@ export default function UserCard(props: UserCardProps) {
     <div className="flex flex-col items-center gap-2 w-32 flex-shrink-0">
       {/* Player Avatar */}
       <div className="w-24 h-24 bg-white rounded-lg overflow-hidden border-2 border-blue-500 shadow-lg">
-        <img
+        <Image
           src={user.image}
           alt={user.username}
           className="w-full h-full object-cover"
+          width={96}
+          height={96}
         />
       </div>
 

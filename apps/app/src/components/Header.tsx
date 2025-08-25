@@ -1,6 +1,7 @@
 import { signOut } from 'next-auth/react';
 import { fetchUser } from '../server/actions';
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface HeaderProps {
   user: {
@@ -29,14 +30,20 @@ export default function Header(props: HeaderProps) {
     getUser();
   }, [user]);
 
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="w-full bg-blue-800 p-4 flex justify-between items-center">
       <div className="flex items-center gap-3">
         <div className="text-white bg-red-500 rounded-full w-10 h-10 flex items-center justify-center text-2xl font-semibold">
-          <img
+          <Image
             src={userData?.image}
             alt={userData?.username}
             className="w-full h-full object-cover rounded-full"
+            width={40}
+            height={40}
           />
         </div>
         <div className="flex flex-col">

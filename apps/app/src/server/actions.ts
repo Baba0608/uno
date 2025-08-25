@@ -86,3 +86,18 @@ export async function joinRoom(roomCode: string) {
     };
   }
 }
+
+export async function startGame(roomId: number, entryFee: number) {
+  try {
+    const response = await Backend(`/games`, {
+      method: 'POST',
+      body: { roomId, entryFee },
+    });
+    return { data: response.data, error: null };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || 'Failed to start game',
+    };
+  }
+}

@@ -1,10 +1,11 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { fetchRoom } from '../../../server/actions';
+import { fetchRoom, startGame } from '../../../server/actions';
 import Error from '../../../components/Error';
 import UserCard from '../../../components/UserCard';
+import Button from '../../../components/Button';
 import { useUser } from '../../../hooks/useUser';
 
 interface Room {
@@ -37,6 +38,7 @@ export default function RoomPage() {
   const [error, setError] = useState<string | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
   const { user } = useUser();
+  const router = useRouter();
 
   useEffect(() => {
     const loadRoom = async () => {
@@ -56,6 +58,17 @@ export default function RoomPage() {
     };
     loadRoom();
   }, []);
+
+  const handleStartGame = async () => {
+    if (!room) return;
+    const { data, error } = await startGame(room.id, 100);
+    if (error) {
+      setError(error);
+    }
+    if (data) {
+      router.push(`/games/${data.id}`);
+    }
+  };
 
   if (error) {
     return <Error error={error} />;
@@ -100,9 +113,7 @@ export default function RoomPage() {
           (player.isHost ? (
             // Current user is host - show start button only
             <div className="flex flex-col items-center gap-3">
-              <button className="bg-green-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors shadow-md">
-                Start Game
-              </button>
+              <Button value="Start Game" onClick={handleStartGame} />
             </div>
           ) : (
             // Current user is not host - show host name message
