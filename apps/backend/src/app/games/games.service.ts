@@ -4,6 +4,7 @@ import { UpdateGameDto } from './dto/update-game.dto';
 import { PrismaService } from '../../shared/services/prisma.service';
 import { TransactionType } from '@prisma/client';
 import { Player, User } from '@prisma/client';
+import { COIN_TRANSACTION_NOTES } from '../../shared/constants/coin-transaction-notes';
 
 @Injectable()
 export class GamesService {
@@ -26,18 +27,25 @@ export class GamesService {
       },
     })) as (Player & { user: User })[];
 
-    for (const player of players) {
-      await this.prismaService.updateUser(player.userId, {
-        coins: player.user.coins - game.entryFee,
-      });
+    // Prepare batch updates
+    const userUpdates = players.map((player) => ({
+      id: player.userId,
+      data: { coins: player.user.coins - game.entryFee },
+    }));
 
-      await this.prismaService.createCoinTransaction({
-        userId: player.userId,
-        amount: game.entryFee,
-        type: TransactionType.ENTRY_FEE,
-        gameId: game.id,
-      });
-    }
+    const coinTransactions = players.map((player) => ({
+      userId: player.userId,
+      amount: game.entryFee,
+      type: TransactionType.ENTRY_FEE,
+      notes: COIN_TRANSACTION_NOTES.JOIN_ROOM,
+      gameId: game.id,
+    }));
+
+    // Execute batch operations
+    await Promise.all([
+      this.prismaService.updateUsersBatch(userUpdates),
+      this.prismaService.createCoinTransactions(coinTransactions),
+    ]);
 
     return game;
   }

@@ -48,6 +48,18 @@ export class PrismaService {
     return this.prisma.user.delete(options);
   }
 
+  // Batch operations for optimization
+  async updateUsersBatch(updates: { id: number; data: UpdateUserDto }[]) {
+    return this.prisma.$transaction(
+      updates.map(({ id, data }) =>
+        this.prisma.user.update({
+          where: { id },
+          data,
+        })
+      )
+    );
+  }
+
   // Rooms
   async createRoom(data: CreateRoomDto) {
     return this.prisma.room.create({
@@ -143,8 +155,8 @@ export class PrismaService {
   }
 
   // Coin Transactions
-  async createCoinTransaction(data: CreateCoinTransactionDto) {
-    return this.prisma.coinTransaction.create({
+  async createCoinTransactions(data: CreateCoinTransactionDto[]) {
+    return this.prisma.coinTransaction.createMany({
       data,
     });
   }

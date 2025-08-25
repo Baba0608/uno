@@ -14,12 +14,14 @@ export class UsersService {
     const user = await this.prismaService.createUser(createUserDto);
 
     // add coin transaction for initial coins
-    await this.prismaService.createCoinTransaction({
-      amount: user.coins,
-      type: TransactionType.EARN,
-      userId: user.id,
-      notes: COIN_TRANSACTION_NOTES.INITIAL_COINS,
-    });
+    await this.prismaService.createCoinTransactions([
+      {
+        amount: user.coins,
+        type: TransactionType.EARN,
+        userId: user.id,
+        notes: COIN_TRANSACTION_NOTES.INITIAL_COINS,
+      },
+    ]);
 
     return user;
   }
@@ -59,7 +61,7 @@ export class UsersService {
       coins: user.coins + createCoinTransactionDto.amount,
     });
 
-    await this.prismaService.createCoinTransaction(createCoinTransactionDto);
+    await this.prismaService.createCoinTransactions([createCoinTransactionDto]);
 
     return user;
   }
@@ -74,7 +76,7 @@ export class UsersService {
       coins: user.coins - createCoinTransactionDto.amount,
     });
 
-    await this.prismaService.createCoinTransaction(createCoinTransactionDto);
+    await this.prismaService.createCoinTransactions([createCoinTransactionDto]);
 
     return user;
   }
