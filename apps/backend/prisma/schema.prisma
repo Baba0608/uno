@@ -89,6 +89,33 @@ model CoinTransaction {
   @@map("coin_transactions")
 }
 
+
+model Card {
+  id     Int     @id @default(autoincrement())
+  type   CardType
+  color  CardColor?
+  value  Int? // only for number cards (0–9)
+
+  @@map("cards")
+}
+
+enum CardType {
+  NUMBER
+  SKIP
+  REVERSE
+  DRAW_TWO
+  WILD
+  WILD_DRAW_FOUR
+}
+
+enum CardColor {
+  RED
+  BLUE
+  GREEN
+  YELLOW
+}
+
+
 enum TransactionType {
   EARN
   SPEND

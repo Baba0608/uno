@@ -7,7 +7,6 @@ interface HeaderProps {
   user: {
     id: string;
     username: string;
-    coins: number;
     name?: string | null;
     email?: string | null;
     image?: string | null;

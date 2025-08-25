@@ -39,6 +39,13 @@
       "options": {
         "passWithNoTests": true
       }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "ts-node --transpile-only prisma/seed.ts",
+        "cwd": "apps/backend"
+      }
     }
   }
 }

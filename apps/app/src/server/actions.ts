@@ -101,3 +101,15 @@ export async function startGame(roomId: number, entryFee: number) {
     };
   }
 }
+
+export async function fetchCards() {
+  try {
+    const response = await Backend('/cards');
+    return { data: response.data, error: null };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || 'Failed to fetch cards',
+    };
+  }
+}
