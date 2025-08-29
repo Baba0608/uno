@@ -19,6 +19,24 @@ export const useRoomSocket = ({
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<Socket | null>(null);
 
+  // Store callbacks in refs to prevent unnecessary re-renders
+  const onPlayerJoinedRef = useRef(onPlayerJoined);
+  const onRoomStateRef = useRef(onRoomState);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onPlayerJoinedRef.current = onPlayerJoined;
+  }, [onPlayerJoined]);
+
+  useEffect(() => {
+    onRoomStateRef.current = onRoomState;
+  }, [onRoomState]);
+
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
+
   const connect = useCallback(() => {
     if (socketRef.current?.connected) return;
 
@@ -28,7 +46,6 @@ export const useRoomSocket = ({
 
     socket.on('connect', () => {
       setIsConnected(true);
-      console.log('Connected to room server');
 
       // Join the room
       socket.emit('joinRoom', { roomId, userId });
@@ -36,23 +53,22 @@ export const useRoomSocket = ({
 
     socket.on('disconnect', () => {
       setIsConnected(false);
-      console.log('Disconnected from room server');
     });
 
     socket.on('roomState', (roomState: any) => {
-      onRoomState?.(roomState);
+      onRoomStateRef.current?.(roomState);
     });
 
     socket.on('playerJoined', (data: { userId: number; message: string }) => {
-      onPlayerJoined?.(data);
+      onPlayerJoinedRef.current?.(data);
     });
 
     socket.on('error', (error: { message: string }) => {
-      onError?.(error.message);
+      onErrorRef.current?.(error.message);
     });
 
     socketRef.current = socket;
-  }, [roomId, userId, onPlayerJoined, onRoomState, onError]);
+  }, [roomId, userId]); // Only depend on roomId and userId
 
   const disconnect = useCallback(() => {
     if (socketRef.current) {
