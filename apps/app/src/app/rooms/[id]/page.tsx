@@ -7,6 +7,7 @@ import Error from '../../../components/Error';
 import UserCard from '../../../components/UserCard';
 import Button from '../../../components/Button';
 import { useUser } from '../../../hooks/useUser';
+import { useRoomSocket } from '../../../hooks/useRoomSocket';
 
 interface Room {
   id: number;
@@ -37,8 +38,26 @@ export default function RoomPage() {
   const [room, setRoom] = useState<Room | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [player, setPlayer] = useState<Player | null>(null);
+  const [notification, setNotification] = useState<string | null>(null);
   const { user } = useUser();
   const router = useRouter();
+
+  // WebSocket for real-time room updates
+  const { isConnected } = useRoomSocket({
+    roomId,
+    userId: user?.id || '',
+    onPlayerJoined: (data) => {
+      setNotification(data.message);
+      setTimeout(() => setNotification(null), 3000);
+    },
+    onRoomState: (roomState) => {
+      setRoom(roomState);
+    },
+    onError: (errorMessage) => {
+      setError(errorMessage);
+      setTimeout(() => setError(null), 5000);
+    },
+  });
 
   useEffect(() => {
     const loadRoom = async () => {
@@ -80,6 +99,20 @@ export default function RoomPage() {
 
   return (
     <div>
+      {/* Connection Status */}
+      {!isConnected && (
+        <div className="bg-yellow-500 text-white px-4 py-2 text-center mb-4">
+          Connecting to room...
+        </div>
+      )}
+
+      {/* Notifications */}
+      {notification && (
+        <div className="bg-green-500 text-white px-4 py-2 text-center mb-4">
+          {notification}
+        </div>
+      )}
+
       {/* Room Code Section */}
       <div className="rounded-lg p-4 mb-6 flex flex-col items-center">
         <div className="flex items-center justify-center">

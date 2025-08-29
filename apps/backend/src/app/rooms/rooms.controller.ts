@@ -9,11 +9,18 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { JoinRoomDto } from './dto/join-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import { AuthGuard } from '../../common/guards/auth.guard';
+
+interface RequestWithUser extends Request {
+  user: {
+    id: number;
+  };
+}
 
 @Controller('rooms')
 export class RoomsController {
@@ -21,7 +28,7 @@ export class RoomsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  create(@Body() createRoomDto: CreateRoomDto, @Req() req: any) {
+  create(@Body() createRoomDto: CreateRoomDto, @Req() req: RequestWithUser) {
     return this.roomsService.create(createRoomDto, req.user.id);
   }
 
@@ -51,7 +58,7 @@ export class RoomsController {
 
   @Post('join')
   @UseGuards(AuthGuard)
-  join(@Body() joinRoomDto: JoinRoomDto, @Req() req: any) {
+  join(@Body() joinRoomDto: JoinRoomDto, @Req() req: RequestWithUser) {
     return this.roomsService.join(joinRoomDto, req.user.id);
   }
 }

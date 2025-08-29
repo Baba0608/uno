@@ -6,6 +6,11 @@ import {
 } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
+interface DecodedToken {
+  userId: string;
+  exp: number; // expiration time
+}
+
 @Injectable()
 export class AuthGuard implements CanActivate {
   private readonly jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
@@ -42,10 +47,10 @@ export class AuthGuard implements CanActivate {
     }
   }
 
-  private validateJWTToken(token: string, userId: string): any {
+  private validateJWTToken(token: string, userId: string): DecodedToken | null {
     try {
       // Verify JWT token with secret
-      const decoded = jwt.verify(token, this.jwtSecret) as any;
+      const decoded = jwt.verify(token, this.jwtSecret) as DecodedToken;
 
       // Check if user ID matches
       if (decoded.userId !== userId) {
