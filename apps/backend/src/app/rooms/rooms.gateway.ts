@@ -61,7 +61,12 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.connectedClients.set(roomKey, new Set());
       }
 
-      const roomUsers = this.connectedClients.get(roomKey)!;
+      const roomUsers = this.connectedClients.get(roomKey);
+      if (!roomUsers) {
+        client.emit('error', { message: 'Failed to get room users' });
+        return;
+      }
+
       const isNewUser = !roomUsers.has(userId);
 
       if (isNewUser) {

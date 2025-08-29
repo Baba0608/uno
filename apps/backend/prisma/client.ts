@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 
 declare global {
-  // eslint-disable-next-line
+   
   var prisma: PrismaClient | undefined;
 }
 
