@@ -113,3 +113,15 @@ export async function fetchCards() {
     };
   }
 }
+
+export async function fetchGame(gameId: string) {
+  try {
+    const response = await Backend(`/games/${gameId}`);
+    return { data: response.data, error: null };
+  } catch (error: any) {
+    return {
+      data: null,
+      error: error.message || 'Failed to fetch game',
+    };
+  }
+}

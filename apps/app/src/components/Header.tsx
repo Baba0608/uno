@@ -29,10 +29,6 @@ export default function Header(props: HeaderProps) {
     getUser();
   }, [user]);
 
-  if (!userData) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="w-full bg-blue-800 p-4 flex justify-between items-center">
       <div className="flex items-center gap-3">

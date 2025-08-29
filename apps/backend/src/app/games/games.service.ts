@@ -27,6 +27,11 @@ export class GamesService {
       },
     })) as (Player & { user: User })[];
 
+    // assign players to game
+    await this.prismaService.updateGame(game.id, {
+      players: { connect: players.map((player) => ({ id: player.id })) },
+    });
+
     // Prepare batch updates
     const userUpdates = players.map((player) => ({
       id: player.userId,
@@ -55,7 +60,15 @@ export class GamesService {
   }
 
   findOne(id: number) {
-    return this.prismaService.findGameById(id);
+    return this.prismaService.findGameById(id, {
+      include: {
+        players: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
   }
 
   update(id: number, updateGameDto: UpdateGameDto) {

@@ -55,7 +55,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   }
 
   return (
-    <div className="w-screen h-screen bg-blue-900 flex flex-col">
+    <div className="w-screen min-h-screen bg-blue-900 flex flex-col">
       <Header user={session.user} />
       <div className="flex-1 flex justify-center items-center">{children}</div>
     </div>
