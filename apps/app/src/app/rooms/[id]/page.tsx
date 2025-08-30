@@ -43,7 +43,7 @@ export default function RoomPage() {
   const router = useRouter();
 
   // WebSocket for real-time room updates
-  const { isConnected } = useRoomSocket({
+  const { isConnected, socket } = useRoomSocket({
     roomId,
     userId: user?.id || '',
     onPlayerJoined: (data) => {
@@ -52,6 +52,9 @@ export default function RoomPage() {
     },
     onRoomState: (roomState) => {
       setRoom(roomState);
+    },
+    onGameStarted: (game) => {
+      router.push(`/games/${game.id}`);
     },
     onError: (errorMessage) => {
       setError(errorMessage);
@@ -85,6 +88,13 @@ export default function RoomPage() {
       setError(error);
     }
     if (data) {
+      // need to emit event to backend to start game
+      if (socket) {
+        socket.emit('startGame', {
+          roomId: room.id,
+          gameId: data.id,
+        });
+      }
       router.push(`/games/${data.id}`);
     }
   };

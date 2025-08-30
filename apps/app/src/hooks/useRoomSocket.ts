@@ -6,6 +6,7 @@ interface UseRoomSocketProps {
   userId: string;
   onPlayerJoined?: (data: { userId: number; message: string }) => void;
   onRoomState?: (roomState: any) => void;
+  onGameStarted?: (game: any) => void;
   onError?: (error: string) => void;
 }
 
@@ -14,6 +15,7 @@ export const useRoomSocket = ({
   userId,
   onPlayerJoined,
   onRoomState,
+  onGameStarted,
   onError,
 }: UseRoomSocketProps) => {
   const [isConnected, setIsConnected] = useState(false);
@@ -22,6 +24,7 @@ export const useRoomSocket = ({
   // Store callbacks in refs to prevent unnecessary re-renders
   const onPlayerJoinedRef = useRef(onPlayerJoined);
   const onRoomStateRef = useRef(onRoomState);
+  const onGameStartedRef = useRef(onGameStarted);
   const onErrorRef = useRef(onError);
 
   // Update refs when callbacks change
@@ -63,6 +66,10 @@ export const useRoomSocket = ({
       onPlayerJoinedRef.current?.(data);
     });
 
+    socket.on('gameStarted', (game: any) => {
+      onGameStartedRef.current?.(game);
+    });
+
     socket.on('error', (error: { message: string }) => {
       onErrorRef.current?.(error.message);
     });
@@ -90,5 +97,6 @@ export const useRoomSocket = ({
     isConnected,
     connect,
     disconnect,
+    socket: socketRef.current,
   };
 };
