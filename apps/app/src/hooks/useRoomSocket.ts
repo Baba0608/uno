@@ -7,6 +7,11 @@ interface UseRoomSocketProps {
   onPlayerJoined?: (data: { userId: number; message: string }) => void;
   onRoomState?: (roomState: any) => void;
   onGameStarted?: (game: any) => void;
+  onJoinGame?: (data: {
+    gameId: string;
+    message: string;
+    redirectUrl: string;
+  }) => void;
   onError?: (error: string) => void;
 }
 
@@ -16,6 +21,7 @@ export const useRoomSocket = ({
   onPlayerJoined,
   onRoomState,
   onGameStarted,
+  onJoinGame,
   onError,
 }: UseRoomSocketProps) => {
   const [isConnected, setIsConnected] = useState(false);
@@ -25,6 +31,7 @@ export const useRoomSocket = ({
   const onPlayerJoinedRef = useRef(onPlayerJoined);
   const onRoomStateRef = useRef(onRoomState);
   const onGameStartedRef = useRef(onGameStarted);
+  const onJoinGameRef = useRef(onJoinGame);
   const onErrorRef = useRef(onError);
 
   // Update refs when callbacks change
@@ -35,6 +42,14 @@ export const useRoomSocket = ({
   useEffect(() => {
     onRoomStateRef.current = onRoomState;
   }, [onRoomState]);
+
+  useEffect(() => {
+    onGameStartedRef.current = onGameStarted;
+  }, [onGameStarted]);
+
+  useEffect(() => {
+    onJoinGameRef.current = onJoinGame;
+  }, [onJoinGame]);
 
   useEffect(() => {
     onErrorRef.current = onError;
@@ -69,6 +84,13 @@ export const useRoomSocket = ({
     socket.on('gameStarted', (game: any) => {
       onGameStartedRef.current?.(game);
     });
+
+    socket.on(
+      'joinGame',
+      (data: { gameId: string; message: string; redirectUrl: string }) => {
+        onJoinGameRef.current?.(data);
+      }
+    );
 
     socket.on('error', (error: { message: string }) => {
       onErrorRef.current?.(error.message);

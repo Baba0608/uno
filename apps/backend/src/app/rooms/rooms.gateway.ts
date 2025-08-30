@@ -11,6 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { PrismaService } from '../../shared/services/prisma.service';
+import { GamesGateway } from '../games/games.gateway';
 
 @WebSocketGateway({
   cors: {
@@ -30,7 +31,8 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
     private readonly roomsService: RoomsService,
-    private readonly prismaService: PrismaService
+    private readonly prismaService: PrismaService,
+    private readonly gamesGateway: GamesGateway
   ) {}
 
   async handleConnection(client: Socket) {
@@ -107,33 +109,53 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: { roomId: number; gameId: number },
     @ConnectedSocket() client: Socket
   ) {
-    const { roomId, gameId } = data;
-    const roomKey = `room-${roomId}`;
+    try {
+      const { roomId, gameId } = data;
+      const roomKey = `room-${roomId}`;
 
-    const room = await this.roomsService.findOne(roomId);
-    if (!room) {
-      this.logger.error('Room not found');
-      client.emit('error', { message: 'Room not found' });
-      return;
+      const room = await this.roomsService.findOne(roomId);
+      if (!room) {
+        this.logger.error('Room not found');
+        client.emit('error', { message: 'Room not found' });
+        return;
+      }
+
+      this.logger.log(`Starting game ${gameId} in room ${roomId}`);
+
+      // Get all players in the room
+      const roomUsers = this.connectedClients.get(roomKey);
+      if (!roomUsers) {
+        this.logger.error('Failed to get room users');
+        client.emit('error', { message: 'Failed to get room users' });
+        return;
+      }
+
+      // Notify room that game is starting
+      this.server.to(roomKey).emit('gameStarting', {
+        gameId,
+        message: 'Game is starting...',
+        timestamp: new Date(),
+      });
+
+      // Delegate game starting to the games gateway
+      // The games gateway will handle card shuffling, distribution, and game state
+      await this.gamesGateway.handleStartGame(data, client);
+
+      // After game is started, notify all players to join the game
+      this.server.to(roomKey).emit('joinGame', {
+        gameId,
+        message: 'Game has started! Please join the game.',
+        redirectUrl: `/games/${gameId}`,
+      });
+
+      this.logger.log(
+        `Game ${gameId} started and all players notified to join`
+      );
+    } catch (error) {
+      this.logger.error(`Error starting game: ${error.message}`);
+      client.emit('error', {
+        message: `Failed to start game: ${error.message}`,
+      });
     }
-    this.logger.log(`Starting game ${gameId}`);
-
-    const roomUsers = this.connectedClients.get(roomKey);
-    if (!roomUsers) {
-      this.logger.error('Failed to get room users');
-      client.emit('error', { message: 'Failed to get room users' });
-      return;
-    }
-
-    const game = await this.prismaService.findGameById(gameId);
-
-    if (!game) {
-      this.logger.error('Game not found');
-      client.emit('error', { message: 'Game not found' });
-      return;
-    }
-
-    this.logger.log(`Game ${gameId} started`);
-    this.server.to(roomKey).emit('gameStarted', game);
   }
 }
