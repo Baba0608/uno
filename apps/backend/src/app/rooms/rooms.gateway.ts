@@ -130,14 +130,6 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return;
       }
 
-      // Notify room that game is starting
-      this.server.to(roomKey).emit('gameStarting', {
-        gameId,
-        message: 'Game is starting...',
-        timestamp: new Date(),
-      });
-
-      // Delegate game starting to the games gateway
       // The games gateway will handle card shuffling, distribution, and game state
       await this.gamesGateway.handleStartGame(data, client);
 

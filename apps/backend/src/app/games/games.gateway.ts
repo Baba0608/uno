@@ -9,9 +9,8 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import { GamesService } from './games.service';
 import { PrismaService } from '../../shared/services/prisma.service';
-import { GameState, GameAction, GameEvent } from './types/game.types';
+import { GameState } from './types/game.types';
 import {
   initializeGameState,
   canPlayCard,
@@ -41,10 +40,7 @@ export class GamesGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Track player socket mappings (playerId -> socketId)
   private playerSocketMap = new Map<string, Map<number, string>>();
 
-  constructor(
-    private readonly gamesService: GamesService,
-    private readonly prismaService: PrismaService
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async handleConnection(client: Socket) {
     this.logger.log(`Client connected to games gateway: ${client.id}`);
