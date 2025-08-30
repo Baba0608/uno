@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { RoomsService } from './rooms.service';
+import { PrismaService } from '../../shared/services/prisma.service';
 
 @WebSocketGateway({
   cors: {
@@ -27,7 +28,10 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Track connected clients per room
   private connectedClients = new Map<string, Set<string>>();
 
-  constructor(private readonly roomsService: RoomsService) {}
+  constructor(
+    private readonly roomsService: RoomsService,
+    private readonly prismaService: PrismaService
+  ) {}
 
   async handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);
@@ -96,5 +100,40 @@ export class RoomsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.logger.error(`Error joining room: ${error.message}`);
       client.emit('error', { message: 'Failed to join room' });
     }
+  }
+
+  @SubscribeMessage('startGame')
+  async handleStartGame(
+    @MessageBody() data: { roomId: number; gameId: number },
+    @ConnectedSocket() client: Socket
+  ) {
+    const { roomId, gameId } = data;
+    const roomKey = `room-${roomId}`;
+
+    const room = await this.roomsService.findOne(roomId);
+    if (!room) {
+      this.logger.error('Room not found');
+      client.emit('error', { message: 'Room not found' });
+      return;
+    }
+    this.logger.log(`Starting game ${gameId}`);
+
+    const roomUsers = this.connectedClients.get(roomKey);
+    if (!roomUsers) {
+      this.logger.error('Failed to get room users');
+      client.emit('error', { message: 'Failed to get room users' });
+      return;
+    }
+
+    const game = await this.prismaService.findGameById(gameId);
+
+    if (!game) {
+      this.logger.error('Game not found');
+      client.emit('error', { message: 'Game not found' });
+      return;
+    }
+
+    this.logger.log(`Game ${gameId} started`);
+    this.server.to(roomKey).emit('gameStarted', game);
   }
 }

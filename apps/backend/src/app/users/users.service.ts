@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../shared/services/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { TransactionType } from '../../../generated/prisma';
+import { TransactionType } from '@prisma/client';
 import { CreateCoinTransactionDto } from '../coin-transactions/dto/create-coin-transaction.dto';
 import { COIN_TRANSACTION_NOTES } from '../../shared/constants/coin-transaction-notes';
 
