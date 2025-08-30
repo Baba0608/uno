@@ -1,5 +1,5 @@
 import { IsNumber, IsEnum, IsOptional, IsString } from 'class-validator';
-import { TransactionType } from '../../../../generated/prisma';
+import { TransactionType } from '@prisma/client';
 
 export class CreateCoinTransactionDto {
   @IsNumber()

@@ -1,4 +1,4 @@
-import { TransactionType } from '../../../../generated/prisma';
+import { TransactionType } from '@prisma/client';
 import { Game } from '../../games/entities/game.entity';
 import { User } from '../../users/entities/user.entity';
 
