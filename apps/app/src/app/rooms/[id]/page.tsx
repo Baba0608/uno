@@ -56,6 +56,13 @@ export default function RoomPage() {
     onGameStarted: (game) => {
       router.push(`/games/${game.id}`);
     },
+    onJoinGame: (data) => {
+      // Show notification and redirect all players to the game
+      setNotification(data.message);
+      setTimeout(() => {
+        router.push(data.redirectUrl);
+      }, 1000);
+    },
     onError: (errorMessage) => {
       setError(errorMessage);
       setTimeout(() => setError(null), 5000);
