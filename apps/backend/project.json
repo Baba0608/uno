@@ -46,6 +46,54 @@
         "command": "ts-node --transpile-only prisma/seed.ts",
         "cwd": "apps/backend"
       }
+    },
+    "prisma:generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx prisma generate --schema=apps/backend/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma:migrate:create": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx prisma migrate dev --create-only --name {args.name} --schema=apps/backend/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma:migrate:dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx prisma migrate dev --name {args.name} --schema=apps/backend/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma:migrate:deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx prisma migrate deploy --schema=apps/backend/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma:migrate:reset": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx prisma migrate reset --schema=apps/backend/prisma/schema.prisma"
+        ]
+      }
+    },
+    "prisma:db:push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "npx prisma db push --schema=apps/backend/prisma/schema.prisma"
+        ]
+      }
     }
   }
 }
