@@ -1,77 +1,110 @@
-# Uno
+# UNO
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A multiplayer UNO card game built with Next.js, NestJS, and PostgreSQL.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## Tech Stack
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- **Frontend**: Next.js 15, React 19, TailwindCSS
+- **Backend**: NestJS 11, Socket.io
+- **Database**: PostgreSQL, Prisma ORM
+- **Auth**: NextAuth with Google OAuth
+- **Monorepo**: Nx
 
-## Finish your CI setup
+## Prerequisites
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/9O8S6w2Tt4)
+- Node.js 18+
+- PostgreSQL
+- Google OAuth credentials (for authentication)
 
+## Local Setup
 
-## Run tasks
+### 1. Install Dependencies
 
-To run tasks with Nx use:
-
-```sh
-npx nx <target> <project-name>
+```bash
+npm install
 ```
 
-For example:
+### 2. Set Up PostgreSQL
 
-```sh
-npx nx build myproject
+Create a PostgreSQL database for the project.
+
+```bash
+createdb uno
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+### 3. Configure Environment Variables
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Create `.env` file in the root directory:
 
-## Add new projects
+```env
+# Database
+DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/uno"
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+# Google OAuth
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-To install a new plugin you can use the `nx add` command. Here's an example of adding the React plugin:
-```sh
-npx nx add @nx/react
+# Auth
+JWT_SECRET="your-jwt-secret"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-nextauth-secret"
+
+# Backend
+NEXT_PUBLIC_BACKEND_URL="http://localhost:8000/api"
 ```
 
-Use the plugin's generator to create new projects. For example, to create a new React app or library:
+### 4. Run Database Migrations
 
-```sh
-# Generate an app
-npx nx g @nx/react:app demo
-
-# Generate a library
-npx nx g @nx/react:lib some-lib
+```bash
+npx nx prisma:migrate:deploy backend
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+### 5. Generate Prisma Client
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+npx nx prisma:generate backend
+```
 
+### 6. Seed Database
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Seeds the UNO card deck into the database.
 
-## Install Nx Console
+```bash
+npx nx seed backend
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### 7. Start the Application
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+Run both frontend and backend in separate terminals:
 
-## Useful links
+**Backend** (port 8000):
 
-Learn more:
+```bash
+npx nx dev backend
+```
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+**Frontend** (port 3000):
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```bash
+npx nx dev app
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to play.
+
+## Available Commands
+
+| Command                                                     | Description                             |
+| ----------------------------------------------------------- | --------------------------------------- |
+| `npx nx dev app`                                            | Start frontend dev server               |
+| `npx nx dev backend`                                        | Start backend dev server                |
+| `npx nx build app`                                          | Build frontend                          |
+| `npx nx build backend`                                      | Build backend                           |
+| `npx nx test app`                                           | Run frontend tests                      |
+| `npx nx test backend`                                       | Run backend tests                       |
+| `npx nx lint app`                                           | Lint frontend                           |
+| `npx nx lint backend`                                       | Lint backend                            |
+| `npx nx prisma:generate backend`                            | Generate Prisma client                  |
+| `npx nx prisma:migrate:dev backend --name=<migration_name>` | Create and apply migration              |
+| `npx nx prisma:migrate:deploy backend`                      | Apply pending migrations                |
+| `npx nx prisma:migrate:reset backend`                       | Reset database and apply all migrations |
+| `npx nx seed backend`                                       | Seed UNO cards                          |
